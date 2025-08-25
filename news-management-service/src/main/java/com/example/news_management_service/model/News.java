@@ -25,9 +25,13 @@ public class News {
     @Column(name = "headline", nullable = false, unique = true)
     private String headline;
 
-    @Column(name = "is_fake")
-    private boolean isFake;
+    @Column(name = "result")
+    private String result;
 
     @Column(name = "credibility_score")
     private Long credibilityScore;
+
+    @Column(name = "evidence")
+    private String evidence;
+
 }

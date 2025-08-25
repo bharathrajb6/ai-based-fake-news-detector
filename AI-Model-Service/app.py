@@ -22,24 +22,25 @@ consumer = KafkaConsumer(
     "claims",
     bootstrap_servers="localhost:9092",
     auto_offset_reset="earliest",
-    group_id="python-service",
+    group_id="java-service",
     value_deserializer=safe_deserializer
 )
 
 print("📡 Python service listening for claims...")
 
 for message in consumer:
-    print(message)
-    claim = message.value
-    print(f"Received claim: {claim}")
+    data = message.value
+    claim_test = data.get("claim")
+    username = data.get("username")
 
     # Run fact check
-    result, evidence = verify_claim(claim)
+    result, evidence = verify_claim(claim_test)
 
     response = {
-        "claim": claim,
+        "claim": claim_test,
         "result": result,
-        "evidence": evidence
+        "evidence": evidence,
+        "username":username
     }
 
     # Send back to claims-verified

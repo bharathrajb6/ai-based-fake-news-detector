@@ -18,7 +18,25 @@ spring:
     consumer:
       group-id: java-service
       auto-offset-reset: earliest
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: xxxxxxxxxxx@gmail.com
+    password: xxxx xxxx xxxx xxxx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 
 server:
   port: 8082
+
+
+logging:
+  file:
+    name: logs/app.log
+  level:
+    root: DEBUG

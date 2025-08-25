@@ -1,5 +1,7 @@
 package com.example.api_gateway.controller;
 
+import static com.example.api_gateway.messages.AuthenticationMessages.*;
+
 import com.example.api_gateway.model.AuthRequest;
 import com.example.api_gateway.model.UserRequest;
 import com.example.api_gateway.service.JwtService;
@@ -20,6 +22,7 @@ import java.util.Collections;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationController {
 
     private final JwtService jwtService;
@@ -34,14 +37,18 @@ public class AuthenticationController {
         } catch (HttpClientErrorException exception) {
             String responseBody = exception.getResponseBodyAsString();
 
+            // Preserve the original status code
             HttpStatusCode statusCode = exception.getStatusCode();
 
+            log.warn(AUTHENTICATION_FAILED, exception.getMessage());
             return ResponseEntity.status(statusCode).contentType(MediaType.APPLICATION_JSON).body(responseBody);
         }
         if (validationResponse.getBody() != null && validationResponse.getBody()) {
             String token = jwtService.generateToken(authRequest.getUsername());
+            log.info(LOGIN_SUCCESSFUL);
             return ResponseEntity.ok(Collections.singletonMap("token", token));
         } else {
+            log.warn(AUTHENTICATION_FAILED);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
@@ -58,16 +65,16 @@ public class AuthenticationController {
             // Preserve the original status code
             HttpStatusCode statusCode = exception.getStatusCode();
 
-            return ResponseEntity
-                    .status(statusCode)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseBody);
+            log.warn(REGISTRATION_FAILED, exception.getMessage());
+            return ResponseEntity.status(statusCode).contentType(MediaType.APPLICATION_JSON).body(responseBody);
         }
 
         if (validationResponse.getBody() != null && validationResponse.getBody()) {
             String token = jwtService.generateToken(userRequest.getUsername());
+            log.info(REGISTRATION_SUCCESSFUL);
             return ResponseEntity.ok(Collections.singletonMap("token", token));
         } else {
+            log.error(REGISTRATION_FAILED);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
