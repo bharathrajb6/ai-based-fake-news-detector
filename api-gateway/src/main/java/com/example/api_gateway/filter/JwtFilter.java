@@ -21,6 +21,16 @@ public class JwtFilter implements GlobalFilter {
     private final JwtService jwtService;
 
 
+    /**
+     * Checks if the request has a valid JWT token in the Authorization header.
+     * If it does, it extracts the username from the token and adds it as an
+     * X-Username header to the request. If the token is invalid, it sets the
+     * response status to 401 Unauthorized.
+     *
+     * @param exchange the exchange object representing the current request
+     * @param chain    the filter chain to continue with the next filter
+     * @return a Mono that completes the filter chain
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getPath().toString();

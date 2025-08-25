@@ -29,6 +29,13 @@ public class AuthenticationController {
 
     private final RestTemplate restTemplate;
 
+    /**
+     * Logs in a user to the system.
+     *
+     * @param authRequest The authentication request containing username and password.
+     * @return A ResponseEntity containing a JSON Web Token (JWT) representing the user
+     * if the credentials are valid, 401 Unauthorized if not.
+     */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
         ResponseEntity<Boolean> validationResponse;
@@ -53,6 +60,13 @@ public class AuthenticationController {
         }
     }
 
+    /**
+     * Registers a new user to the system.
+     *
+     * @param userRequest The user registration request containing user details.
+     * @return A ResponseEntity containing a JSON Web Token (JWT) representing the user
+     * if the registration is successful, 401 Unauthorized if not.
+     */
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ResponseEntity<?> register(@RequestBody UserRequest userRequest) {
         ResponseEntity<Boolean> validationResponse;
