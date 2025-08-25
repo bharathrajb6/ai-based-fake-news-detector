@@ -1,8 +1,8 @@
 package com.example.user_service.controller;
 
-import com.example.user_service.dto.AuthRequest;
-import com.example.user_service.dto.UserRequest;
-import com.example.user_service.dto.UserResponse;
+import com.example.user_service.dto.request.AuthRequest;
+import com.example.user_service.dto.request.UserRequest;
+import com.example.user_service.dto.response.UserResponse;
 import com.example.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -40,7 +40,7 @@ public class UserController {
     @RequestMapping(value = "/updateUserDetails", method = RequestMethod.PUT)
     public UserResponse updateUserDetails(@RequestHeader(value = "X-Username", required = false) String username,
                                           @RequestBody UserRequest userRequest) {
-        if (!Objects.equals(username,userRequest.getUsername())) {
+        if (!Objects.equals(username, userRequest.getUsername())) {
             return null;
         }
         return userService.updateUserDetails(userRequest);
@@ -49,7 +49,7 @@ public class UserController {
     @RequestMapping(value = "/updatePassword", method = RequestMethod.PUT)
     public Boolean updatePassword(@RequestHeader(value = "X-Username", required = false) String username,
                                   @RequestBody AuthRequest authRequest) {
-        if (!Objects.equals(username,authRequest.getUsername())) {
+        if (!Objects.equals(username, authRequest.getUsername())) {
             return null;
         }
         return userService.updatePassword(username, authRequest.getPassword());

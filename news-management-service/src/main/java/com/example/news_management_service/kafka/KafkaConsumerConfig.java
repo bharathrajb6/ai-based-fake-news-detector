@@ -29,7 +29,7 @@ public class KafkaConsumerConfig {
     }
 
 
-    // 🔑 Generic ConsumerFactory
+    // eneric ConsumerFactory
     public <T> ConsumerFactory<String, T> consumerFactory(Class<T> targetType) {
         return new DefaultKafkaConsumerFactory<>(
                 baseConfig(),
@@ -38,7 +38,7 @@ public class KafkaConsumerConfig {
         );
     }
 
-    // 🔑 Generic KafkaListenerContainerFactory
+    // Generic KafkaListenerContainerFactory
     @Bean
     public <T> ConcurrentKafkaListenerContainerFactory<String, T> kafkaListenerContainerFactory(Class<T> targetType) {
         ConcurrentKafkaListenerContainerFactory<String, T> factory =

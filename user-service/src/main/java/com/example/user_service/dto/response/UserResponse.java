@@ -1,4 +1,4 @@
-package com.example.user_service.dto;
+package com.example.user_service.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,11 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRequest {
+public class UserResponse {
     private String firstName;
     private String lastName;
-    private String email;
     private String username;
-    private String password;
+    private String email;
     private String contactNumber;
 }
