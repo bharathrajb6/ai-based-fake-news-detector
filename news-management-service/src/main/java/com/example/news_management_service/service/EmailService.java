@@ -13,6 +13,11 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
 
+    /**
+     * Send an email with information about the claim to the user.
+     *
+     * @param claimData the claim data to be processed
+     */
     public void sendEmailInfo(ClaimData claimData) {
 //        try {
 //            SimpleMailMessage mail = new SimpleMailMessage();

@@ -10,6 +10,13 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /**
+     * Returns a {@link SecurityWebFilterChain} that allows any exchange to be
+     * permitted.
+     *
+     * @param security the server HTTP security configuration
+     * @return a security web filter chain
+     */
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity security) {
         return security.csrf(ServerHttpSecurity.CsrfSpec::disable).authorizeExchange(exchange ->

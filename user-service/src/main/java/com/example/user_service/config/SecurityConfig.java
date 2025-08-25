@@ -14,7 +14,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class SecurityConfig {
     /**
      * Defines the security configuration for the application.
-     *
+     * <p>
      * This configuration is very minimal. It disables CSRF protection and allows
      * any exchange to be permitted. This is suitable for a simple service that
      * doesn't handle sensitive data.
@@ -24,14 +24,19 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        return http
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(exchanges -> exchanges
-                        .anyExchange().permitAll()
-                ).build();
+        return http.csrf(ServerHttpSecurity.CsrfSpec::disable).authorizeExchange(exchanges -> exchanges.anyExchange().permitAll()).build();
     }
 
 
+    /**
+     * Defines the password encoder bean for the application.
+     * <p>
+     * This bean is required for the user service to hash passwords properly.
+     * <p>
+     * The bean is configured to use the BCrypt password encoder.
+     *
+     * @return the password encoder
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

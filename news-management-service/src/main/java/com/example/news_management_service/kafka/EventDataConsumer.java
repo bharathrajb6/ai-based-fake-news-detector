@@ -16,6 +16,12 @@ public class EventDataConsumer {
     private final EmailService emailService;
     private final NewsCheckService newsCheckService;
 
+    /**
+     * Listens to the "claims-verified" topic, and whenever a message is consumed,
+     * it updates the news details and sends an email with the result.
+     *
+     * @param claimData the claim data to be processed
+     */
     @KafkaListener(topics = "claims-verified", groupId = "java-service", containerFactory = "claimDataKafkaListenerContainerFactory")
     public void consumeClaimMessage(ClaimData claimData) {
         log.info("claim - verified messages - {}", claimData);

@@ -1,4 +1,4 @@
-package com.example.news_management_service.dto;
+package com.example.news_management_service.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
