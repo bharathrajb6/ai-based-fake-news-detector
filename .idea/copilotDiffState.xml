@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/User.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/User.java" />
+              <option name="originalContent" value="package com.example.user_service.model;&#10;&#10;import jakarta.persistence.*;&#10;&#10;&#10;@Entity&#10;@Table(name = &quot;users&quot;)&#10;public class User {&#10;    @Id&#10;    @GeneratedValue(strategy = GenerationType.IDENTITY)&#10;    private Long id;&#10;&#10;    @Column(nullable = false, unique = true)&#10;    private String username;&#10;&#10;    @Column(nullable = false)&#10;    private String password;&#10;&#10;    @Column(nullable = false)&#10;    private String email;&#10;&#10;    private String fullName;&#10;&#10;    // Getters and setters&#10;    public Long getId() { return id; }&#10;    public void setId(Long id) { this.id = id; }&#10;    public String getUsername() { return username; }&#10;    public void setUsername(String username) { this.username = username; }&#10;    public String getPassword() { return password; }&#10;    public void setPassword(String password) { this.password = password; }&#10;    public String getEmail() { return email; }&#10;    public void setEmail(String email) { this.email = email; }&#10;    public String getFullName() { return fullName; }&#10;    public void setFullName(String fullName) { this.fullName = fullName; }&#10;}&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/UserController.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/UserController.java" />
+              <option name="originalContent" value="&#10;" />
+              <option name="updatedContent" value="package com.example.user_service.controller;&#10;&#10;import com.example.user_service.model.User;&#10;import com.example.user_service.service.UserService;&#10;import org.springframework.beans.factory.annotation.Autowired;&#10;import org.springframework.http.ResponseEntity;&#10;import org.springframework.web.bind.annotation.*;&#10;import java.util.Optional;&#10;&#10;@RestController&#10;@RequestMapping(&quot;/api/users&quot;)&#10;public class UserController {&#10;    @Autowired&#10;    private UserService userService;&#10;&#10;    @PostMapping(&quot;/register&quot;)&#10;    public ResponseEntity&lt;User&gt; register(@RequestBody User user) {&#10;        User createdUser = userService.register(user);&#10;        return ResponseEntity.ok(createdUser);&#10;    }&#10;&#10;    @PostMapping(&quot;/login&quot;)&#10;    public ResponseEntity&lt;User&gt; login(@RequestParam String username, @RequestParam String password) {&#10;        Optional&lt;User&gt; userOpt = userService.login(username, password);&#10;        return userOpt.map(ResponseEntity::ok).orElseGet(() -&gt; ResponseEntity.status(401).build());&#10;    }&#10;&#10;    @PutMapping(&quot;/{id}/password&quot;)&#10;    public ResponseEntity&lt;Void&gt; updatePassword(@PathVariable Long id, @RequestParam String newPassword) {&#10;        boolean updated = userService.updatePassword(id, newPassword);&#10;        return updated ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();&#10;    }&#10;&#10;    @PutMapping(&quot;/{id}&quot;)&#10;    public ResponseEntity&lt;Void&gt; updateUserDetails(@PathVariable Long id, @RequestBody User updatedUser) {&#10;        boolean updated = userService.updateUserDetails(id, updatedUser);&#10;        return updated ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();&#10;    }&#10;&#10;    @GetMapping(&quot;/{id}&quot;)&#10;    public ResponseEntity&lt;User&gt; getUserDetails(@PathVariable Long id) {&#10;        Optional&lt;User&gt; userOpt = userService.getUserDetails(id);&#10;        return userOpt.map(ResponseEntity::ok).orElseGet(() -&gt; ResponseEntity.notFound().build());&#10;    }&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/UserRepository.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/UserRepository.java" />
+              <option name="originalContent" value="&#10;" />
+              <option name="updatedContent" value="package com.example.user_service.repository;&#10;&#10;import com.example.user_service.model.User;&#10;import org.springframework.data.jpa.repository.JpaRepository;&#10;import java.util.Optional;&#10;&#10;public interface UserRepository extends JpaRepository&lt;User, Long&gt; {&#10;    Optional&lt;User&gt; findByUsername(String username);&#10;    Optional&lt;User&gt; findByEmail(String email);&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/UserService.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/UserService.java" />
+              <option name="originalContent" value="&#10;" />
+              <option name="updatedContent" value="package com.example.user_service.service;&#10;&#10;import com.example.user_service.model.User;&#10;import com.example.user_service.repository.UserRepository;&#10;import org.springframework.beans.factory.annotation.Autowired;&#10;import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;&#10;import org.springframework.stereotype.Service;&#10;import java.util.Optional;&#10;&#10;@Service&#10;public class UserService {&#10;    @Autowired&#10;    private UserRepository userRepository;&#10;&#10;    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();&#10;&#10;    public User register(User user) {&#10;        user.setPassword(passwordEncoder.encode(user.getPassword()));&#10;        return userRepository.save(user);&#10;    }&#10;&#10;    public Optional&lt;User&gt; login(String username, String password) {&#10;        Optional&lt;User&gt; userOpt = userRepository.findByUsername(username);&#10;        if (userOpt.isPresent() &amp;&amp; passwordEncoder.matches(password, userOpt.get().getPassword())) {&#10;            return userOpt;&#10;        }&#10;        return Optional.empty();&#10;    }&#10;&#10;    public boolean updatePassword(Long userId, String newPassword) {&#10;        Optional&lt;User&gt; userOpt = userRepository.findById(userId);&#10;        if (userOpt.isPresent()) {&#10;            User user = userOpt.get();&#10;            user.setPassword(passwordEncoder.encode(newPassword));&#10;            userRepository.save(user);&#10;            return true;&#10;        }&#10;        return false;&#10;    }&#10;&#10;    public boolean updateUserDetails(Long userId, User updatedUser) {&#10;        Optional&lt;User&gt; userOpt = userRepository.findById(userId);&#10;        if (userOpt.isPresent()) {&#10;            User user = userOpt.get();&#10;            user.setEmail(updatedUser.getEmail());&#10;            user.setFullName(updatedUser.getFullName());&#10;            userRepository.save(user);&#10;            return true;&#10;        }&#10;        return false;&#10;    }&#10;&#10;    public Optional&lt;User&gt; getUserDetails(Long userId) {&#10;        return userRepository.findById(userId);&#10;    }&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/repository/UserRepository.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/repository/UserRepository.java" />
+              <option name="updatedContent" value="package com.example.user_service.repository;&#10;&#10;import com.example.user_service.model.User;&#10;import org.springframework.data.jpa.repository.JpaRepository;&#10;import java.util.Optional;&#10;&#10;public interface UserRepository extends JpaRepository&lt;User, Long&gt; {&#10;    Optional&lt;User&gt; findByUsername(String username);&#10;    Optional&lt;User&gt; findByEmail(String email);&#10;}&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
