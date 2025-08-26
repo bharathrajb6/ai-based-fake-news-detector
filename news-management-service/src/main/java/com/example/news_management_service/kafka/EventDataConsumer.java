@@ -1,6 +1,7 @@
 package com.example.news_management_service.kafka;
 
-import com.example.news_management_service.dto.ClaimData;
+import com.example.news_management_service.dto.response.ClaimData;
+import com.example.news_management_service.dto.response.FactCheckResponse;
 import com.example.news_management_service.service.EmailService;
 import com.example.news_management_service.service.NewsCheckService;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +28,11 @@ public class EventDataConsumer {
         log.info("claim - verified messages - {}", claimData);
         newsCheckService.updateNewsDetails(claimData);
         emailService.sendEmailInfo(claimData);
+    }
+
+
+    @KafkaListener(topics = "fact-checked-data", groupId = "fact-check-service",containerFactory = "factCheckResponseKafkaListenerContainerFactory")
+    public void consumeFactCheckedData(FactCheckResponse factCheckResponse) {
+        log.info("claim - verified messages - {}", factCheckResponse);
     }
 }

@@ -50,7 +50,7 @@ public interface NewsRepo extends JpaRepository<News, String> {
     @Modifying
     @Transactional
     @Query("UPDATE News n SET n.result = ?1, n.evidence = ?2 WHERE n.headline = ?3 AND n.username = ?4")
-    boolean updateNewsDetails(String result, String evidence, String headline, String username);
+    void updateNewsDetails(String result, String evidence, String headline, String username);
 
     /**
      * Finds all news articles by a given username.

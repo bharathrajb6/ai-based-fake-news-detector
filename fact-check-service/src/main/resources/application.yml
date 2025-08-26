@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: fact-check-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/userService
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: Hunter@4343
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: fact-check-service
+      auto-offset-reset: earliest
+
+server:
+  port: 8083

@@ -1,6 +1,6 @@
 package com.example.news_management_service.service;
 
-import com.example.news_management_service.dto.ClaimData;
+import com.example.news_management_service.dto.response.ClaimData;
 import com.example.news_management_service.dto.rrequest.NewsCheckRequest;
 import com.example.news_management_service.dto.response.NewsCheckResponse;
 import com.example.news_management_service.exception.NewsException;
@@ -49,6 +49,7 @@ public class NewsCheckService {
                         "\"}";
                 log.info("Sending news headline to kafka topic for verification");
                 eventProducer.sendTopic(EventTopics.claims, jsonData);
+                eventProducer.sendTopic(EventTopics.fact_check, jsonData);
                 return "Saved successfully. Will let u know the check is done";
             } catch (Exception exception) {
                 log.error("Error occurred while saving news", exception);

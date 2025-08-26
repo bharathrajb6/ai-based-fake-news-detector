@@ -1,6 +1,6 @@
 package com.example.news_management_service.service;
 
-import com.example.news_management_service.dto.ClaimData;
+import com.example.news_management_service.dto.response.ClaimData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
