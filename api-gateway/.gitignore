@@ -4,7 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/.DS_Store
 !**/src/test/**/target/
-
+.DS_Store
 
 ### STS ###
 .apt_generated
