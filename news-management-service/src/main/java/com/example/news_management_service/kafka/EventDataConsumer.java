@@ -34,9 +34,7 @@ public class EventDataConsumer {
         log.info("Received ClaimData from topic 'claims-verified': {}", claimData);
         try {
             newsCheckService.updateNewsDetails(claimData);
-            log.info("Updated news details for headline: {}", claimData != null ? claimData.getHeadline() : null);
             emailService.sendEmailInfo(claimData);
-            log.info("Sent email notification for headline: {}", claimData != null ? claimData.getHeadline() : null);
         } catch (Exception ex) {
             log.error("Error processing ClaimData: {}", claimData, ex);
         }
