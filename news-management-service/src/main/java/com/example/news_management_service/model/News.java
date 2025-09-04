@@ -37,4 +37,10 @@ public class News {
     @Column(name = "evidence")
     private String evidence;
 
+    @Column(name = "source_site")
+    private String sourceSite;
+
+    @Column(name = "source_trust_score")
+    private Double sourceTrustScore;
+
 }

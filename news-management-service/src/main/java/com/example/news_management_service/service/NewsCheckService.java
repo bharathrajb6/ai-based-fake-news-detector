@@ -55,6 +55,19 @@ public class NewsCheckService {
             log.info("Sending news headline to kafka topic for verification");
             eventProducer.sendTopic(EventTopics.claims, jsonData);
             eventProducer.sendTopic(EventTopics.fact_check, jsonData);
+
+            // Source credibility evaluation (Kafka): publish request for evaluation
+            String site = request.getSourceSite();
+            if (site != null && !site.isBlank()) {
+                String credibilityPayload = "{" +
+                        "\"site\":\"" + site + "\"," +
+                        "\"headline\":\"" + savedNews.getHeadline() + "\"," +
+                        "\"username\":\"" + savedNews.getUsername() + "\"}";
+                log.info("Sending source site for credibility evaluation to kafka topic '{}' with payload: {}", EventTopics.credibility_check, credibilityPayload);
+                eventProducer.sendTopic(EventTopics.credibility_check, credibilityPayload);
+            } else {
+                log.warn("No sourceSite provided in request; skipping source credibility evaluation");
+            }
             return newsMapper.toNewsCheckResponse(news);
         } catch (Exception exception) {
             log.error("Error occurred while saving news", exception);
@@ -121,5 +134,27 @@ public class NewsCheckService {
         Page<News> newsPage = newsRepo.findAllNewsByUsername(username, pageable);
         log.info("Retrieved {} news articles for user: {}", newsPage.getTotalElements(), username);
         return newsMapper.toPageNewsCheckResponse(newsPage);
+    }
+
+    /**
+     * Updates the source credibility fields for a specific news record identified by username and headline.
+     *
+     * @param username   the username who created the news record
+     * @param headline   the headline of the news record
+     * @param site       the source site/domain
+     * @param trustScore the computed trust score (0..1)
+     */
+    public void updateSourceCredibility(String username, String headline, String site, Double trustScore) {
+        if (headline == null || username == null) {
+            log.warn("Cannot update source credibility due to missing headline/username. headline={}, username={}", headline, username);
+            return;
+        }
+        try {
+            newsRepo.updateSourceCredibility(trustScore, site, headline, username);
+            log.info("Updated source credibility for headline='{}', username='{}' with site='{}', trustScore={}", headline, username, site, trustScore);
+        } catch (Exception ex) {
+            log.error("Failed to update source credibility for headline='{}', username='{}'", headline, username, ex);
+            throw new NewsException("Failed to update source credibility", ex);
+        }
     }
 }

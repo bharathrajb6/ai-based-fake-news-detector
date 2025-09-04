@@ -53,6 +53,14 @@ public interface NewsRepo extends JpaRepository<News, String> {
     void updateNewsDetails(String result, String evidence, String headline, String username);
 
     /**
+     * Updates the source fields of a news article with the given headline and username.
+     */
+    @Modifying
+    @Transactional
+    @Query("UPDATE News n SET n.sourceTrustScore = ?1, n.sourceSite = ?2 WHERE n.headline = ?3 AND n.username = ?4")
+    void updateSourceCredibility(Double sourceTrustScore, String sourceSite, String headline, String username);
+
+    /**
      * Finds all news articles by a given username.
      *
      * @param username the username of the user to search for

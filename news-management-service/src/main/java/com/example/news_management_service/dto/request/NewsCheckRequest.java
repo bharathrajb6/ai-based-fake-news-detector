@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class NewsCheckRequest {
     private String headline;
     private String author;
+    private String sourceSite;
 }

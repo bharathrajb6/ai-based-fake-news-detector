@@ -2,6 +2,7 @@ package com.example.news_management_service.kafka;
 
 import com.example.news_management_service.dto.response.ClaimData;
 import com.example.news_management_service.dto.response.FactCheckResponse;
+import java.util.Map;
 import com.example.news_management_service.service.EmailService;
 import com.example.news_management_service.service.NewsCheckService;
 import lombok.RequiredArgsConstructor;
@@ -50,5 +51,27 @@ public class EventDataConsumer {
     @KafkaListener(topics = "fact-checked-data", groupId = "java-service", containerFactory = "factCheckResponseKafkaListenerContainerFactory")
     public void consumeFactCheckResponse(FactCheckResponse response) {
         log.info("Consumed FactCheckResponse from topic 'fact-checked-data': {}", response);
+    }
+
+    /**
+     * Consumes SourceCredibilityResponse from topic "credibility-checked-data" and updates News.
+     * Expects payload with keys: site, trustScore, headline, username.
+     */
+    @KafkaListener(topics = "credibility-checked-data", groupId = "java-service", containerFactory = "credibilityCheckedKafkaListenerContainerFactory")
+    public void consumeSourceCredibility(Map<String, Object> response) {
+        try {
+            String site = (String) response.get("site");
+            Double trustScore = response.get("trustScore") instanceof Number ? ((Number) response.get("trustScore")).doubleValue() : null;
+            String headline = (String) response.get("headline");
+            String username = (String) response.get("username");
+            log.info("Consumed SourceCredibilityResponse site={} trustScore={} headline={} username={}", site, trustScore, headline, username);
+            if (site != null && trustScore != null && headline != null && username != null) {
+                newsCheckService.updateSourceCredibility(username, headline, site, trustScore);
+            } else {
+                log.warn("Incomplete SourceCredibilityResponse payload: {}", response);
+            }
+        } catch (Exception ex) {
+            log.error("Error processing SourceCredibilityResponse: {}", response, ex);
+        }
     }
 }

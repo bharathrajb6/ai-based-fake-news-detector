@@ -115,4 +115,23 @@ public class KafkaConsumerConfig {
         log.info("Configured FactCheckResponse Kafka listener container factory with error handler");
         return factory;
     }
+
+    @Bean
+    public ConsumerFactory<String, java.util.Map<String, Object>> credibilityCheckedConsumerFactory() {
+        return new DefaultKafkaConsumerFactory<>(
+                baseConfig(),
+                new StringDeserializer(),
+                new JsonDeserializer<>(java.util.Map.class, false)
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, java.util.Map<String, Object>> credibilityCheckedKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, java.util.Map<String, Object>> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(credibilityCheckedConsumerFactory());
+        factory.setCommonErrorHandler(new DefaultErrorHandler(new FixedBackOff(0L, 0L)));
+        log.info("Configured credibility-checked-data Kafka listener container factory");
+        return factory;
+    }
 }
