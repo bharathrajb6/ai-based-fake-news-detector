@@ -1,6 +1,6 @@
 package com.example.news_management_service.mapper;
 
-import com.example.news_management_service.dto.rrequest.NewsCheckRequest;
+import com.example.news_management_service.dto.request.NewsCheckRequest;
 import com.example.news_management_service.dto.response.NewsCheckResponse;
 import com.example.news_management_service.model.News;
 import org.mapstruct.Mapper;

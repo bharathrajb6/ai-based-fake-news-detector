@@ -18,6 +18,12 @@ public class EventDataConsumer {
     private final NewsCheckService newsCheckService;
 
     /**
+     * Listens to the "claims-verified" topic and processes verified claim data.
+     * Updates the news data store and sends an email notification.
+     *
+     * @param claimData the consumed verified claim data payload
+     */
+    /**
      * Listens to the "claims-verified" topic, and whenever a message is consumed,
      * it updates the news details and sends an email with the result.
      *
@@ -25,14 +31,26 @@ public class EventDataConsumer {
      */
     @KafkaListener(topics = "claims-verified", groupId = "java-service", containerFactory = "claimDataKafkaListenerContainerFactory")
     public void consumeClaimMessage(ClaimData claimData) {
-        log.info("claim - verified messages - {}", claimData);
-        newsCheckService.updateNewsDetails(claimData);
-        emailService.sendEmailInfo(claimData);
+        log.info("Received ClaimData from topic 'claims-verified': {}", claimData);
+        try {
+            newsCheckService.updateNewsDetails(claimData);
+            log.info("Updated news details for headline: {}", claimData != null ? claimData.getHeadline() : null);
+            emailService.sendEmailInfo(claimData);
+            log.info("Sent email notification for headline: {}", claimData != null ? claimData.getHeadline() : null);
+        } catch (Exception ex) {
+            log.error("Error processing ClaimData: {}", claimData, ex);
+        }
     }
 
 
-    @KafkaListener(topics = "fact-checked-data", groupId = "fact-check-service",containerFactory = "factCheckResponseKafkaListenerContainerFactory")
-    public void consumeFactCheckedData(FactCheckResponse factCheckResponse) {
-        log.info("claim - verified messages - {}", factCheckResponse);
+    /**
+     * Consumes the Google Fact Check API response published by fact-check-service
+     * on topic "fact-checked-data".
+     *
+     * @param response the fact check response payload
+     */
+    @KafkaListener(topics = "fact-checked-data", groupId = "java-service", containerFactory = "factCheckResponseKafkaListenerContainerFactory")
+    public void consumeFactCheckResponse(FactCheckResponse response) {
+        log.info("Consumed FactCheckResponse from topic 'fact-checked-data': {}", response);
     }
 }

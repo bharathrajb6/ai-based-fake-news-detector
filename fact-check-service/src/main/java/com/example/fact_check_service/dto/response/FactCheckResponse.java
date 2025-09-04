@@ -11,4 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class FactCheckResponse {
     private List<Claims> claims;
+    private String headline;
 }

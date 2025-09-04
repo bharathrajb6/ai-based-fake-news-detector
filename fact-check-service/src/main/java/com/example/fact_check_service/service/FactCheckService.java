@@ -19,42 +19,60 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class FactCheckService {
 
     @Autowired
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     private static final String API_KEY = "AIzaSyBk1dW-2JTVO82SlQJf_Ce4nZrNIXk0_18";
     private static final String BASE_URL = "https://factchecktools.googleapis.com/v1alpha1/claims:search";
 
     /**
-     * Consumes a message from the "fact-check" topic and checks the claim via the Google Fact Checking API.
+     * Consumes ClaimData from topic "fact-check" and queries the Google Fact Check API.
+     * Publishes the resulting {@link com.example.fact_check_service.dto.response.FactCheckResponse}
+     * to topic "fact-checked-data" and updates the news data.
      *
-     * @param claimText the text of the claim to be checked
+     * @param claimData the claim payload to be checked
      * @throws JsonProcessingException if there is a problem with JSON processing
      */
     @KafkaListener(topics = "fact-check", groupId = "fact-check-service", containerFactory = "claimDataKafkaListenerContainerFactory")
     public void checkClaim(ClaimData claimData) throws JsonProcessingException {
-        log.info("Checking claim: {}", claimData.getClaim());
+        if (claimData == null) {
+            log.warn("ClaimData in checkClaim is null");
+            return;
+        }
+
+        log.info("Received ClaimData to check: {}", claimData);
+        log.info("Checking claim text: {}", claimData.getClaim());
         RestTemplate restTemplate = new RestTemplate();
 
         String url = UriComponentsBuilder.fromHttpUrl(BASE_URL).queryParam("query", "{claim}").queryParam("languageCode", "en").queryParam("pageSize", 3).queryParam("key", API_KEY).build(false)  // disables encoding
                 .expand(claimData.getClaim()).toUriString();
 
         log.info("Querying Google Fact Checking API with URL: {}", url);
-        FactCheckResponse response = restTemplate.getForObject(url, FactCheckResponse.class);
-        log.info("Response from Google Fact Checking API: {}", response);
+        try {
+            FactCheckResponse response = restTemplate.getForObject(url, FactCheckResponse.class);
+            response.setHeadline(claimData.getClaim());
+            log.info("Response from Google Fact Checking API: {}", response);
 
-        String factCheckResponse = new ObjectMapper().writeValueAsString(response);
-        log.info("Publishing fact check response to topic: fact-checked-data");
-        updateNewsData(factCheckResponse);
+            if (response != null) {
+                String factCheckResponse = new ObjectMapper().writeValueAsString(response);
+                log.info("Publishing fact check response to topic: fact-checked-data");
+                updateNewsData(response);
+                log.info("Successfully published and updated news data for headline: {}", response.getHeadline());
+            } else {
+                log.warn("Response from Google Fact Checking API is null");
+            }
+        } catch (Exception exception) {
+            log.error("Error while querying Google Fact Checking API", exception);
+        }
     }
 
 
     /**
      * Publishes the fact check response to the "fact-checked-data" topic.
      *
-     * @param factCheckResponse the fact check response as a JSON string
+     * @param factCheckResponse the fact check response payload
      */
-    public void updateNewsData(String factCheckResponse) {
-        log.info("Publishing fact check response to topic: fact-checked-data");
+    public void updateNewsData(FactCheckResponse factCheckResponse) {
+        log.info("Publishing FactCheckResponse to topic 'fact-checked-data': {}", factCheckResponse);
         kafkaTemplate.send("fact-checked-data", factCheckResponse);
         log.info("Published fact check response to topic: fact-checked-data");
     }

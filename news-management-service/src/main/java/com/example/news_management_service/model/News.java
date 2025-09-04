@@ -25,6 +25,9 @@ public class News {
     @Column(name = "headline", nullable = false, unique = true)
     private String headline;
 
+    @Column(name = "author", nullable = false)
+    private String author;
+
     @Column(name = "result")
     private String result;
 

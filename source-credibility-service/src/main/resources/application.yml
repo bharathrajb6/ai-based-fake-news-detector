@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: source-credibility-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/newsService
+    username: root
+    password: Hunter@4343
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8094

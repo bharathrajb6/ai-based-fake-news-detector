@@ -1,6 +1,6 @@
 package com.example.news_management_service.controller;
 
-import com.example.news_management_service.dto.rrequest.NewsCheckRequest;
+import com.example.news_management_service.dto.request.NewsCheckRequest;
 import com.example.news_management_service.dto.response.NewsCheckResponse;
 import com.example.news_management_service.service.NewsCheckService;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +24,8 @@ public class NewsController {
      * @return a string indicating whether the news article is fake or not
      */
     @RequestMapping(value = "/check", method = RequestMethod.POST)
-    public String postNewsForFakeCheck(@RequestHeader(value = "X-Username", required = false) String username,
-                                       @RequestBody NewsCheckRequest request) {
+    public NewsCheckResponse postNewsForFakeCheck(@RequestHeader(value = "X-Username", required = false) String username,
+                                                  @RequestBody NewsCheckRequest request) {
         return newsCheckService.checkIfNewsIsFake(username, request);
     }
 
@@ -49,7 +49,8 @@ public class NewsController {
      * @param headline the headline of the news article to retrieve
      * @return the news article with the given headline
      */
-    public NewsCheckResponse getNewsByHeadline(@RequestHeader(value = "X-Username", required = false) String username, @RequestParam String headline) {
+    @RequestMapping(value = "/getNewsByHeadline", method = RequestMethod.GET)
+    public NewsCheckResponse getNewsByHeadline(@RequestHeader(value = "X-Username", required = false) String username, @RequestParam(name = "headline") String headline) {
         return newsCheckService.getNewsDetails(headline, username);
     }
 }

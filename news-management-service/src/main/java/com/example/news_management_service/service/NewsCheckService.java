@@ -1,7 +1,7 @@
 package com.example.news_management_service.service;
 
 import com.example.news_management_service.dto.response.ClaimData;
-import com.example.news_management_service.dto.rrequest.NewsCheckRequest;
+import com.example.news_management_service.dto.request.NewsCheckRequest;
 import com.example.news_management_service.dto.response.NewsCheckResponse;
 import com.example.news_management_service.exception.NewsException;
 import com.example.news_management_service.kafka.EventProducer;
@@ -34,29 +34,32 @@ public class NewsCheckService {
      * @param request  the news article to be checked
      * @return a string indicating whether the news article is fake or not
      */
-    public String checkIfNewsIsFake(String username, NewsCheckRequest request) {
-        if (request.getHeadline() != null && !request.getHeadline().isBlank()) {
-            log.info("Checking news headline: {}", request.getHeadline());
-            News news = newsMapper.toNews(request);
-            news.setId(UUID.randomUUID().toString());
-            news.setUsername(username);
-            try {
-                log.info("Saving news to database");
-                newsRepo.save(news);
-                String jsonData = "{" +
-                        "\"claim\":\"" + news.getHeadline() + "\"," +
-                        "\"username\":\"" + news.getUsername() +
-                        "\"}";
-                log.info("Sending news headline to kafka topic for verification");
-                eventProducer.sendTopic(EventTopics.claims, jsonData);
-                eventProducer.sendTopic(EventTopics.fact_check, jsonData);
-                return "Saved successfully. Will let u know the check is done";
-            } catch (Exception exception) {
-                log.error("Error occurred while saving news", exception);
-                throw new NewsException("Error occurred while saving news", exception);
-            }
+    public NewsCheckResponse checkIfNewsIsFake(String username, NewsCheckRequest request) {
+        if (request == null || request.getHeadline() == null || request.getHeadline().isBlank()) {
+            throw new NewsException("Invalid news");
         }
-        throw new NewsException("Invalid news");
+
+        log.info("Checking news headline: {}", request.getHeadline());
+        News news = newsMapper.toNews(request);
+        news.setId(UUID.randomUUID().toString());
+        news.setUsername(username);
+
+        try {
+            log.info("Saving news to database");
+            News savedNews = newsRepo.save(news);
+            if (savedNews == null) {
+                throw new NewsException("Error occurred while saving news");
+            }
+
+            String jsonData = "{" + "\"claim\":\"" + savedNews.getHeadline() + "\"," + "\"username\":\"" + savedNews.getUsername() + "\"}";
+            log.info("Sending news headline to kafka topic for verification");
+            eventProducer.sendTopic(EventTopics.claims, jsonData);
+            eventProducer.sendTopic(EventTopics.fact_check, jsonData);
+            return newsMapper.toNewsCheckResponse(news);
+        } catch (Exception exception) {
+            log.error("Error occurred while saving news", exception);
+            throw new NewsException("Error occurred while saving news", exception);
+        }
     }
 
 
