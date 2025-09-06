@@ -6,6 +6,7 @@ import com.example.news_management_service.service.NewsCheckService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -38,7 +39,10 @@ public class NewsController {
      * @return a page of news articles checked by the user
      */
     @RequestMapping(value = "/getAllNews", method = RequestMethod.GET)
-    public Page<NewsCheckResponse> getAllNewsForTheUser(@RequestHeader(value = "X-Username", required = false) String username, Pageable pageable) {
+    public Page<NewsCheckResponse> getAllNewsForTheUser(@RequestHeader(value = "X-Username", required = false) String username,
+                                                        @RequestParam(name = "page", defaultValue = "0") int page,
+                                                        @RequestParam(name = "size", defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
         return newsCheckService.getAllNewsForTheUser(username, pageable);
     }
 

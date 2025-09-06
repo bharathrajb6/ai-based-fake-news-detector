@@ -2,6 +2,7 @@ package com.example.news_management_service.kafka;
 
 import com.example.news_management_service.dto.response.ClaimData;
 import com.example.news_management_service.dto.response.FactCheckResponse;
+import com.example.news_management_service.util.NewsUtil;
 import java.util.Map;
 import com.example.news_management_service.service.EmailService;
 import com.example.news_management_service.service.NewsCheckService;
@@ -17,6 +18,7 @@ public class EventDataConsumer {
 
     private final EmailService emailService;
     private final NewsCheckService newsCheckService;
+    private final NewsUtil newsUtil;
 
     /**
      * Listens to the "claims-verified" topic and processes verified claim data.
@@ -51,6 +53,19 @@ public class EventDataConsumer {
     @KafkaListener(topics = "fact-checked-data", groupId = "java-service", containerFactory = "factCheckResponseKafkaListenerContainerFactory")
     public void consumeFactCheckResponse(FactCheckResponse response) {
         log.info("Consumed FactCheckResponse from topic 'fact-checked-data': {}", response);
+        try {
+            boolean mostlyFake = newsUtil.isMostlyFake(response);
+            String result = mostlyFake ? "FAKE" : "REAL";
+            String evidence = "Determined by fact-check aggregation";
+            String headline = response.getHeadline();
+            if (headline != null) {
+                newsCheckService.updateResultByHeadline(headline, result, evidence);
+            } else {
+                log.warn("FactCheckResponse missing headline; cannot update news");
+            }
+        } catch (Exception ex) {
+            log.error("Failed to process FactCheckResponse", ex);
+        }
     }
 
     /**

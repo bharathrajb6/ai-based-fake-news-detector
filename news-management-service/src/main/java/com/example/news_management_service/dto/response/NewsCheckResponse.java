@@ -9,7 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NewsCheckResponse {
     private String id;
+    private String username;
     private String headline;
-    private boolean isFake;
+    private String author;
+    private String result;
     private Long credibilityScore;
+    private String evidence;
+    private String sourceSite;
+    private Double sourceTrustScore;
 }

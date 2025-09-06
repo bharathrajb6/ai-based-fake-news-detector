@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
@@ -41,14 +43,16 @@ public class AuthenticationController {
         ResponseEntity<Boolean> validationResponse;
         try {
             validationResponse = restTemplate.postForEntity("http://localhost:8081/api/users/validate", authRequest, Boolean.class);
-        } catch (HttpClientErrorException exception) {
+        } catch (RestClientResponseException exception) {
             String responseBody = exception.getResponseBodyAsString();
-
-            // Preserve the original status code
             HttpStatusCode statusCode = exception.getStatusCode();
-
             log.warn(AUTHENTICATION_FAILED, exception.getMessage());
             return ResponseEntity.status(statusCode).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+        } catch (ResourceAccessException exception) {
+            log.error("Upstream user-service unavailable", exception);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{\"message\":\"User service unavailable\"}");
         }
         if (validationResponse.getBody() != null && validationResponse.getBody()) {
             String token = jwtService.generateToken(authRequest.getUsername());
@@ -72,15 +76,16 @@ public class AuthenticationController {
         ResponseEntity<Boolean> validationResponse;
         try {
             validationResponse = restTemplate.postForEntity("http://localhost:8081/api/users/register", userRequest, Boolean.class);
-        } catch (HttpClientErrorException exception) {
-            // Extract the response body from user-service
+        } catch (RestClientResponseException exception) {
             String responseBody = exception.getResponseBodyAsString();
-
-            // Preserve the original status code
             HttpStatusCode statusCode = exception.getStatusCode();
-
             log.warn(REGISTRATION_FAILED, exception.getMessage());
             return ResponseEntity.status(statusCode).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+        } catch (ResourceAccessException exception) {
+            log.error("Upstream user-service unavailable", exception);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{\"message\":\"User service unavailable\"}");
         }
 
         if (validationResponse.getBody() != null && validationResponse.getBody()) {

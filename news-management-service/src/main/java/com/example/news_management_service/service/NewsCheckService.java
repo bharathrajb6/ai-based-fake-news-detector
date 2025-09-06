@@ -11,6 +11,7 @@ import com.example.news_management_service.model.News;
 import com.example.news_management_service.repo.NewsRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,9 @@ import java.util.UUID;
 public class NewsCheckService {
 
     private final NewsRepo newsRepo;
-    private final NewsMapper newsMapper;
+
+    @Autowired
+    private NewsMapper newsMapper;
     private final EventProducer eventProducer;
 
     /**
@@ -155,6 +158,23 @@ public class NewsCheckService {
         } catch (Exception ex) {
             log.error("Failed to update source credibility for headline='{}', username='{}'", headline, username, ex);
             throw new NewsException("Failed to update source credibility", ex);
+        }
+    }
+
+    /**
+     * Updates result/evidence by headline only.
+     */
+    public void updateResultByHeadline(String headline, String result, String evidence) {
+        if (headline == null) {
+            log.warn("Cannot update result by headline because headline is null");
+            return;
+        }
+        try {
+            newsRepo.updateResultByHeadline(result, evidence, headline);
+            log.info("Updated result by headline='{}' to result='{}'", headline, result);
+        } catch (Exception ex) {
+            log.error("Failed to update result by headline='{}'", headline, ex);
+            throw new NewsException("Failed to update result by headline", ex);
         }
     }
 }

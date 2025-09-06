@@ -53,6 +53,14 @@ public interface NewsRepo extends JpaRepository<News, String> {
     void updateNewsDetails(String result, String evidence, String headline, String username);
 
     /**
+     * Updates result and evidence by headline only (assuming headline is unique).
+     */
+    @Modifying
+    @Transactional
+    @Query("UPDATE News n SET n.result = ?1, n.evidence = ?2 WHERE n.headline = ?3")
+    void updateResultByHeadline(String result, String evidence, String headline);
+
+    /**
      * Updates the source fields of a news article with the given headline and username.
      */
     @Modifying
