@@ -31,12 +31,6 @@ spring:
               predicates:
                 - Path=/api/news/**
 
-logging:
-  file:
-    name: logs/app.log
-  level:
-    root: DEBUG
-
 
 
 
